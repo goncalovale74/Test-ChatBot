@@ -4,17 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chatbot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
     <style>
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
             background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
         }
 
         #chatbot {
@@ -75,20 +70,18 @@
             background-color: #2d70a0;
             align-self: flex-end;
             color: white;
-            margin-left: auto;
         }
 
         .bot-message {
             background-color: #2a2a2a;
             align-self: flex-start;
             color: white;
-            margin-right: auto;
         }
 
         #chatbot-input {
             display: flex;
             border-top: 1px solid #444;
-            padding: 10px 0 0 0;
+            padding-top: 10px;
         }
 
             #chatbot-input input {
@@ -223,9 +216,22 @@
             }
             appendMessage(response, "bot");
         }
+
+        // Verifica se a URL tem ?abrir=1 e abre o chat automaticamente
+        window.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("abrir") === "1") {
+                const chat = document.getElementById("chatbot");
+                if (chat) {
+                    chat.style.display = "flex";
+                }
+                const icon = document.getElementById("chatbot-icon");
+                if (icon) {
+                    icon.style.display = "none";
+                }
+            }
+        });
     </script>
 
 </body>
 </html>
-
-
