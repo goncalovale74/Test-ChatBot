@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #chatbot {
+            width: 320px;
+            height: 420px;
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            animation: showChat 0.3s forwards;
+        }
+
+        @keyframes showChat {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #chatbot-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            color: #f0f0f0;
+            scrollbar-width: thin;
+            scrollbar-color: #333 #1a1a1a;
+        }
+
+            #chatbot-messages::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            #chatbot-messages::-webkit-scrollbar-thumb {
+                background-color: #333;
+                border-radius: 3px;
+            }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin: 8px 0;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background-color: #2d70a0;
+            align-self: flex-end;
+            color: white;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background-color: #2a2a2a;
+            align-self: flex-start;
+            color: white;
+            margin-right: auto;
+        }
+
+        #chatbot-input {
+            display: flex;
+            border-top: 1px solid #444;
+            padding: 10px 0 0 0;
+        }
+
+            #chatbot-input input {
+                flex: 1;
+                padding: 8px;
+                border: none;
+                border-radius: 5px;
+                background-color: #444;
+                color: white;
+            }
+
+            #chatbot-input button {
+                margin-left: 8px;
+                background: none;
+                border: none;
+                color: #ccc;
+                cursor: pointer;
+            }
+
+        #chatbot-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #e0e0e0;
+            color: #333;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            border: none;
+            cursor: pointer;
+        }
+
+        #faq-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .faq-btn {
+            background-color: #333;
+            color: #eee;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+            .faq-btn:hover {
+                background-color: #444;
+            }
+    </style>
+</head>
+<body>
+
+    <div id="chatbot-icon" onclick="toggleChat()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+    </div>
+
+    <div id="chatbot">
+        <div id="chatbot-messages">
+            <div id="faq-options">
+                <button class="faq-btn" onclick="sendFAQ('Onde está a minha encomenda?')">Onde está a minha encomenda?</button>
+                <button class="faq-btn" onclick="sendFAQ('Aceitam devoluções?')">Aceitam devoluções?</button>
+                <button class="faq-btn" onclick="sendFAQ('Como falar com um agente?')">Como falar com um agente?</button>
+                <button class="faq-btn" onclick="sendFAQ('Posso Cancelar a minha encomenda?')">Posso Cancelar a minha encomenda?</button>
+            </div>
+        </div>
+        <div id="chatbot-input">
+            <input type="text" id="user-input" placeholder="Escreva aqui..." onkeydown="checkEnter(event)" />
+            <button onclick="sendMessage()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <path d="M22 2L11 13" />
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const chat = document.getElementById("chatbot");
+            chat.style.display = chat.style.display === "none" ? "flex" : "none";
+        }
+
+        function checkEnter(event) {
+            if (event.key === "Enter") sendMessage();
+        }
+
+        function appendMessage(text, sender) {
+            const messagesDiv = document.getElementById("chatbot-messages");
+            const msg = document.createElement("div");
+            msg.classList.add("message", sender === "user" ? "user-message" : "bot-message");
+            msg.textContent = text;
+            messagesDiv.appendChild(msg);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("user-input");
+            const text = input.value.trim();
+            if (!text) return;
+            appendMessage(text, "user");
+            input.value = "";
+            getBotResponse(text);
+        }
+
+        function sendFAQ(question) {
+            appendMessage(question, "user");
+            let response = '';
+            switch (question) {
+                case "Onde está a minha encomenda?":
+                    response = "Pode encontrar essa informação na aba 'Meus Pedidos' e clicando no pedido ao qual se refere.";
+                    break;
+                case "Aceitam devoluções?":
+                    response = "Sim, aceitamos devoluções dentro do prazo de 30 dias após o recebimento.";
+                    break;
+                case "Como falar com um agente?":
+                    response = "Contacta um dos nossos agentes a partir do nosso email: reliablesystemsai@gmail.com. Iremos contactar-te de volta dentro de 48h úteis.";
+                    break;
+                case "Posso Cancelar a minha encomenda?":
+                    response = "Sim, pode cancelar a sua encomenda desde que não tenha sido enviada ainda. Entre em contacto connosco rapidamente.";
+                    break;
+            }
+            appendMessage(response, "bot");
+        }
+    </script>
+
+</body>
+</html>
+
+
